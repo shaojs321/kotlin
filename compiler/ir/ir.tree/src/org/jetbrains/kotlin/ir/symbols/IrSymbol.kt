@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.ir.declarations.IrScript
 import org.jetbrains.kotlin.ir.expressions.IrReturnableBlock
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.ir.util.IrSymbolVisitor
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.model.TypeConstructorMarker
 import org.jetbrains.kotlin.types.model.TypeParameterMarker
 
@@ -94,12 +95,17 @@ interface IrClassifierSymbol :
 
     override val descriptor: ClassifierDescriptor
 
+    val name: Name
+
     override fun <D, R> accept(visitor: IrSymbolVisitor<R, D>, data: D): R =
         visitor.visitClassifierSymbol(this, data)
 }
 
 interface IrClassSymbol :
     IrClassifierSymbol, IrBindableSymbol<ClassDescriptor, IrClass> {
+
+    override val name: Name
+        get() = owner.name
 
     override fun <D, R> accept(visitor: IrSymbolVisitor<R, D>, data: D): R =
         visitor.visitClassSymbol(this, data)
@@ -114,6 +120,9 @@ interface IrScriptSymbol :
 
 interface IrTypeParameterSymbol :
     IrClassifierSymbol, IrBindableSymbol<TypeParameterDescriptor, IrTypeParameter>, TypeParameterMarker {
+
+    override val name: Name
+        get() = owner.name
 
     override fun <D, R> accept(visitor: IrSymbolVisitor<R, D>, data: D): R =
         visitor.visitTypeParameterSymbol(this, data)

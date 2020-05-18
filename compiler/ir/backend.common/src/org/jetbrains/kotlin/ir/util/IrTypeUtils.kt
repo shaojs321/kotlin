@@ -33,7 +33,7 @@ fun IrType.isKSuspendFunction(): Boolean = this.isClassWithNamePrefix("KSuspendF
 
 private fun IrType.isClassWithNamePrefix(prefix: String, packageFqName: FqName): Boolean {
     val classifier = classifierOrNull ?: return false
-    val name = classifier.descriptor.name.asString()
+    val name = classifier.name.asString()
     if (!name.startsWith(prefix)) return false
     val declaration = classifier.owner as IrDeclaration
     val parent = declaration.parent as? IrPackageFragment ?: return false
