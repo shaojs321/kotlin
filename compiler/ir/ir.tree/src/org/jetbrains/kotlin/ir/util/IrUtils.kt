@@ -480,6 +480,16 @@ fun ReferenceSymbolTable.referenceFunction(callable: CallableDescriptor): IrFunc
             throw IllegalArgumentException("Unexpected callable descriptor: $callable")
     }
 
+fun SymbolTable.referenceFunction(function: IrFunction): IrFunctionSymbol =
+    when (function) {
+        is IrConstructor ->
+            referenceConstructor(function)
+        is IrSimpleFunction ->
+            referenceSimpleFunction(function)
+        else ->
+            throw IllegalArgumentException("Unexpected function: $function")
+    }
+
 /**
  * Create new call based on given [call] and [newFunction]
  * [receiversAsArguments]: optionally convert call with dispatch receiver to static call
