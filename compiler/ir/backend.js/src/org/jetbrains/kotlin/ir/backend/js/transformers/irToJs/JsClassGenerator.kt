@@ -32,7 +32,7 @@ class JsClassGenerator(private val irClass: IrClass, val context: JsGenerationCo
     private val classModel = JsIrClassModel(irClass)
 
     fun generate(): JsStatement {
-        assert(!irClass.descriptor.isExpect)
+        assert(!irClass.isExpect)
 
         maybeGeneratePrimaryConstructor()
         val transformer = IrDeclarationToJsTransformer()
