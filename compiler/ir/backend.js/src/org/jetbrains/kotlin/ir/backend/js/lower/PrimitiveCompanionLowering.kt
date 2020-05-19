@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.ir.types.isPrimitiveType
 import org.jetbrains.kotlin.ir.types.isString
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.irCall
+import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.properties
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -32,7 +33,7 @@ class PrimitiveCompanionLowering(val context: JsIrBackendContext) : BodyLowering
 
         //TODO: Figure out how to check for primitive companion in case similar to REPL in better way
         val parent = irClass.parent as? IrClass
-            ?: context.symbolTable.referenceClass(irClass.descriptor.containingDeclaration as ClassDescriptor).owner.also {
+            ?: context.symbolTable.referenceClass(irClass.parentAsClass).owner.also {
                 assert(context.scriptMode)
             }
 

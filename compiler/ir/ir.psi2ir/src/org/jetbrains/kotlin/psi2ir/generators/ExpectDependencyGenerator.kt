@@ -69,7 +69,7 @@ fun referenceExpectsForUsedActuals(expectDescriptorToSymbol: MutableMap<Declarat
         override fun visitTypeAlias(declaration: IrTypeAlias) {
             // Force actual type alias right hand side deserialization.
             if (declaration.isActual) {
-                declaration.expandedType.classOrNull?.descriptor?.let { symbolTable.referenceClass(it) }
+                declaration.expandedType.classOrNull?.owner?.let { symbolTable.referenceClass(it) }
             }
 
             declaration.forEachExpect {

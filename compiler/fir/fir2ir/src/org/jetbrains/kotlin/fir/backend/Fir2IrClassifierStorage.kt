@@ -350,11 +350,11 @@ class Fir2IrClassifierStorage(
 
     fun getIrClassSymbol(firClassSymbol: FirClassSymbol<*>): IrClassSymbol {
         val firClass = firClassSymbol.fir
-        getCachedIrClass(firClass)?.let { return symbolTable.referenceClass(it.descriptor) }
+        getCachedIrClass(firClass)?.let { return symbolTable.referenceClass(it) }
         // TODO: remove all this code and change to unbound symbol creation
         if (firClass is FirAnonymousObject || firClass is FirRegularClass && firClass.visibility == Visibilities.LOCAL) {
             val irClass = createIrClass(firClass)
-            return symbolTable.referenceClass(irClass.descriptor)
+            return symbolTable.referenceClass(irClass)
         }
         val classId = firClassSymbol.classId
         val parentId = classId.outerClassId
@@ -365,7 +365,7 @@ class Fir2IrClassifierStorage(
             declarationStorage.addDeclarationsToExternalClass(firClass as FirRegularClass, irClass)
         }
 
-        return symbolTable.referenceClass(irClass.descriptor)
+        return symbolTable.referenceClass(irClass)
     }
 
     fun getIrTypeParameterSymbol(
@@ -374,6 +374,6 @@ class Fir2IrClassifierStorage(
     ): IrTypeParameterSymbol {
         val irTypeParameter = getCachedIrTypeParameter(firTypeParameterSymbol.fir, typeContext = typeContext)
             ?: throw AssertionError("Cannot find cached type parameter by FIR symbol: ${firTypeParameterSymbol.name}")
-        return symbolTable.referenceTypeParameter(irTypeParameter.descriptor)
+        return symbolTable.referenceTypeParameter(irTypeParameter)
     }
 }
