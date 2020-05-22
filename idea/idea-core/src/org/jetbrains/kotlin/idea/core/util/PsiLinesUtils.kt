@@ -49,11 +49,11 @@ fun PsiElement.getLineCount(): Int {
     if (doc != null) {
         val spaceRange = textRange ?: TextRange.EMPTY_RANGE
 
-        if (spaceRange.endOffset <= doc.textLength) {
+        if (spaceRange.endOffset <= doc.textLength && spaceRange.startOffset < spaceRange.endOffset) {
             val startLine = doc.getLineNumber(spaceRange.startOffset)
             val endLine = doc.getLineNumber(spaceRange.endOffset)
 
-            return endLine - startLine
+            return endLine - startLine + 1
         }
     }
 

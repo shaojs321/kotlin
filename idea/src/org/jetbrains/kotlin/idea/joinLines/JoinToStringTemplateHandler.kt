@@ -22,10 +22,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.idea.core.util.getLineCount
 import org.jetbrains.kotlin.idea.intentions.ConvertToStringTemplateIntention
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.psi.KtBinaryExpression
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 
 class JoinToStringTemplateHandler : JoinRawLinesHandlerDelegate {
@@ -41,10 +38,9 @@ class JoinToStringTemplateHandler : JoinRawLinesHandlerDelegate {
         if (!binaryExpr.joinable()) return -1
 
         val lineCount = binaryExpr.getLineCount()
-        val nextLineCount = lineCount + 1
 
         var parent = binaryExpr.parent
-        while (parent is KtBinaryExpression && parent.joinable() && parent.getLineCount() == nextLineCount) {
+        while (parent is KtBinaryExpression && parent.joinable() && parent.getLineCount() == lineCount) {
             binaryExpr = parent
             parent = parent.parent
         }
@@ -53,7 +49,7 @@ class JoinToStringTemplateHandler : JoinRawLinesHandlerDelegate {
         var left = binaryExpr.left
         while (left is KtBinaryExpression && left.joinable()) {
             val leftLeft = (left as? KtBinaryExpression)?.left ?: break
-            if (leftLeft.getLineCount() < lineCount) break
+            if (leftLeft.getLineCount() < lineCount - 1) break
             rightText = ConvertToStringTemplateIntention.buildText(left.right, false) + rightText
             left = left.left
         }
