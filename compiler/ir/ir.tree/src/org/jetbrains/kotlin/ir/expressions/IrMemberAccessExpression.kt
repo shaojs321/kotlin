@@ -33,8 +33,8 @@ interface IrMemberAccessExpression : IrExpression, IrDeclarationReference {
     fun removeValueArgument(index: Int)
 }
 
-fun IrMemberAccessExpression.getTypeArgument(typeParameterDescriptor: TypeParameterDescriptor): IrType? =
-    getTypeArgument(typeParameterDescriptor.index)
+fun IrMemberAccessExpression.getTypeArgument(typeParameter: IrTypeParameter): IrType? =
+    getTypeArgument(typeParameter.index)
 
 fun IrMemberAccessExpression.copyTypeArgumentsFrom(other: IrMemberAccessExpression, shift: Int = 0) {
     assert(typeArgumentsCount == other.typeArgumentsCount + shift) {

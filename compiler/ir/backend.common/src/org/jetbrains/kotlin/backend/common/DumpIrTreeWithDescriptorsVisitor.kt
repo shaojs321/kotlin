@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.backend.common
 
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.ir.IrElement
@@ -272,20 +271,20 @@ class DumpIrTreeWithDescriptorsVisitor(out: Appendable) : IrElementVisitor<Unit,
         expression.dumpLabeledElementWith(data) {
             dumpTypeArguments(expression)
 
-            val descriptor = expression.symbol.descriptor as CallableDescriptor
+            val callable = expression.symbol.owner as IrFunction
             expression.dispatchReceiver?.accept(this, "\$this")
             expression.extensionReceiver?.accept(this, "\$receiver")
-            for (valueParameter in descriptor.valueParameters) {
+            for (valueParameter in callable.valueParameters) {
                 expression.getValueArgument(valueParameter.index)?.accept(this, valueParameter.name.asString())
             }
         }
     }
 
     private fun dumpTypeArguments(expression: IrMemberAccessExpression) {
-        val descriptor = expression.symbol.descriptor as CallableDescriptor
-        for (typeParameter in descriptor.original.typeParameters) {
+        val callable = expression.symbol.owner as IrFunction
+        for (typeParameter in callable.typeParameters) {
             val typeArgument = expression.getTypeArgument(typeParameter) ?: continue
-            val renderedParameter = DescriptorRenderer.ONLY_NAMES_WITH_SHORT_TYPES.render(typeParameter)
+            val renderedParameter = typeParameter.render()
             val renderedType = typeArgument.render()
             printer.println("$renderedParameter: $renderedType")
         }
