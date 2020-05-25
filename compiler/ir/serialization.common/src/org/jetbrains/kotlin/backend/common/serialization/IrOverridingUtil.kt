@@ -81,7 +81,8 @@ class IrOverridingUtil(val irBuiltIns: IrBuiltIns, val fakeOverrideBuilder: Fake
     // We need to get Any's members if all the parents are private.
     private fun allPublicApiSuperTypesOrAny(clazz: IrClass): List<IrType> {
         val superTypes = clazz.superTypes
-        return if (superTypes.isEmpty() || superTypes.any { it.classOrNull!!.isPublicApi })
+        val superClasses = superTypes.map { it.getClass() ?: error("Unexpected super type: $it") }
+        return if (superClasses.isEmpty() || superClasses.any { it.symbol.isPublicApi  })
             superTypes
         else
             listOf(irBuiltIns.anyType)
@@ -99,7 +100,7 @@ class IrOverridingUtil(val irBuiltIns: IrBuiltIns, val fakeOverrideBuilder: Fake
         debug("\nDESERIALIZED members:\n\t${fromCurrent.map {it.render()}.joinToString("\n\t")}")
 
         val allFromSuper = superTypes.flatMap { superType ->
-            val superClass = superType.getClass()!!
+            val superClass = superType.getClass() ?: error("Unexpected super type: $superType")
             superClass.declarations
                 .filterIsInstance<IrOverridableMember>()
                 .filter { (it as IrSymbolOwner).symbol.isPublicApi }
@@ -468,7 +469,7 @@ class IrOverridingUtil(val irBuiltIns: IrBuiltIns, val fakeOverrideBuilder: Fake
 
     fun extractMembersOverridableInBothWays(
         overrider: IrOverridableMember,
-        @Mutable extractFrom: MutableCollection<IrOverridableMember>
+        extractFrom: MutableCollection<IrOverridableMember>
     ): Collection<IrOverridableMember> {
         val overridable = arrayListOf<IrOverridableMember>()
         overridable.add(overrider)

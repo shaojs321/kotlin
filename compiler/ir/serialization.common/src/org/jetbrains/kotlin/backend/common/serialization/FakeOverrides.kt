@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.descriptors.*
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.getClass
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
@@ -61,7 +61,7 @@ class FakeOverrideBuilderImpl(
     override fun fakeOverrideMember(superType: IrType, member: IrOverridableMember, clazz: IrClass, newModality: Modality?, newVisibility: Visibility?): IrOverridableMember {
         require(superType is IrSimpleType) { "superType is $superType, expected IrSimpleType" }
         val classifier = superType.classifier
-        if (classifier !is IrClassSymbol) error("superType classifier is not IrClassSymbol: ${classifier}")
+        require(classifier is IrClassSymbol) { "superType classifier is not IrClassSymbol: ${classifier}" }
 
         val typeParameters = classifier.owner.typeParameters.map { it.symbol }
         val typeArguments = superType.arguments.map { it as IrSimpleType } // TODO: the cast should not be here
@@ -88,7 +88,7 @@ class FakeOverrideBuilderImpl(
         val superTypes = clazz.superTypes
 
         val superClasses = superTypes.map {
-            it.classOrNull?.owner
+            it.getClass() ?: error("Unexpected super type: $it")
         }.filterNotNull()
 
         superClasses.forEach {
@@ -103,9 +103,7 @@ class FakeOverrideBuilderImpl(
 
     override fun redelegateFakeOverride(fake: IrOverridableMember) {
         when (fake) {
-            is IrSimpleFunction -> {
-                redelegateFunction(fake)
-            }
+            is IrSimpleFunction -> redelegateFunction(fake)
             is IrProperty -> redelegateProperty(fake)
         }
     }

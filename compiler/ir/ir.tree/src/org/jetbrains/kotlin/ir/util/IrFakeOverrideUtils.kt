@@ -74,7 +74,7 @@ fun IrSimpleFunction.collectRealOverrides(toSkip: (IrSimpleFunction) -> Boolean 
 }
 
 // TODO: use this implementation instead of any other
-fun IrSimpleFunction.resolveFakeOverride(toSkip: (IrSimpleFunction) -> Boolean = { false }, allowAbstract: Boolean = false): IrSimpleFunction? {
+fun IrSimpleFunction.resolveFakeOverride(allowAbstract: Boolean = false, toSkip: (IrSimpleFunction) -> Boolean = { false }): IrSimpleFunction? {
     val reals = collectRealOverrides(toSkip)
     return if (allowAbstract) {
         if (reals.isEmpty()) error("No real overrides for ${this.render()}")
