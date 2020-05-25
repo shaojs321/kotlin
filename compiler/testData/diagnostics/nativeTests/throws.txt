@@ -21,6 +21,7 @@ package
 @kotlin.Throws(exceptionClasses = {kotlin.Throwable::class, kotlin.coroutines.cancellation.CancellationException::class}) public suspend fun suspendThrowsThrowable3(): kotlin.Unit
 @kotlin.Throws(exceptionClasses = {kotlin.Throwable::class}) public suspend fun suspendThrowsThrowableTypealias(): kotlin.Unit
 @kotlin.Throws(exceptionClasses = {}) public fun throwsEmptyParens(): kotlin.Unit
+@kotlin.Throws(exceptionClasses = {}) public fun throwsUnresolved(): kotlin.Unit
 public fun withLocalClass(): kotlin.Unit
 
 public interface Base0 {

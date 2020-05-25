@@ -41,14 +41,15 @@ object NativeThrowsChecker : DeclarationChecker {
 
     override fun check(declaration: KtDeclaration, descriptor: DeclarationDescriptor, context: DeclarationCheckerContext) {
         val throwsAnnotation = descriptor.annotations.findAnnotation(throwsFqName)
-        val reportLocation = throwsAnnotation?.let { DescriptorToSourceUtils.getSourceFromAnnotation(it) } ?: declaration
+        val throwsAnnotationEntry = throwsAnnotation?.let { DescriptorToSourceUtils.getSourceFromAnnotation(it) }
+        val reportLocation = throwsAnnotationEntry ?: declaration
 
         if (!checkInheritance(declaration, descriptor, context, throwsAnnotation, reportLocation)) return
 
         if (throwsAnnotation == null) return
 
         val classes = throwsAnnotation.getVariadicArguments()
-        if (classes.isEmpty()) {
+        if (throwsAnnotationEntry?.valueArguments?.isEmpty() ?: classes.isEmpty()) {
             context.trace.report(ErrorsNative.THROWS_LIST_EMPTY.on(reportLocation))
             return
         }

@@ -37,6 +37,9 @@ fun foo() {}
 <!THROWS_LIST_EMPTY!>@Throws()<!>
 fun throwsEmptyParens() {}
 
+@Throws(<!ANNOTATION_ARGUMENT_MUST_BE_CONST!><!UNRESOLVED_REFERENCE!>UnresolvedException<!>::class<!>)
+fun throwsUnresolved() {}
+
 interface Base0 {
     fun foo()
 }
