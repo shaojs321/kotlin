@@ -28,15 +28,16 @@ import org.jetbrains.kotlin.utils.DFS
 object NativeThrowsChecker : DeclarationChecker {
     private val throwsFqName = KOTLIN_THROWS_ANNOTATION_FQ_NAME
 
-    private val cancellableExceptionClassId = ClassId.topLevel(FqName("kotlin.coroutines.cancellation.CancellationException"))
+    private val cancellationExceptionFqName = FqName("kotlin.coroutines.cancellation.CancellationException")
 
     // Note: can't use subtyping, because CancellationException can be missing (e.g. for common code).
-    private val cancellableExceptionAndSupersClassIds = sequenceOf(
+    private val cancellationExceptionAndSupersClassIds = sequenceOf(
         KotlinBuiltIns.FQ_NAMES.throwable,
         FqName("kotlin.Exception"),
         FqName("kotlin.RuntimeException"),
-        FqName("kotlin.IllegalStateException")
-    ).map { ClassId.topLevel(it) }.toSet() + cancellableExceptionClassId
+        FqName("kotlin.IllegalStateException"),
+        cancellationExceptionFqName
+    ).map { ClassId.topLevel(it) }.toSet()
 
     override fun check(declaration: KtDeclaration, descriptor: DeclarationDescriptor, context: DeclarationCheckerContext) {
         val throwsAnnotation = descriptor.annotations.findAnnotation(throwsFqName)
@@ -52,11 +53,11 @@ object NativeThrowsChecker : DeclarationChecker {
             return
         }
 
-        if (declaration.hasModifier(SUSPEND_KEYWORD) && classes.none { it.isGlobalClassWithId(cancellableExceptionAndSupersClassIds) }) {
+        if (declaration.hasModifier(SUSPEND_KEYWORD) && classes.none { it.isGlobalClassWithId(cancellationExceptionAndSupersClassIds) }) {
             context.trace.report(
                 ErrorsNative.MISSING_EXCEPTION_IN_THROWS_ON_SUSPEND.on(
                     reportLocation,
-                    cancellableExceptionClassId.relativeClassName.asString()
+                    cancellationExceptionFqName
                 )
             )
         }

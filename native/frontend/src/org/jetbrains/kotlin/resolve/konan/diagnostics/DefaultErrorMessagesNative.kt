@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.resolve.konan.diagnostics
 
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.diagnostics.rendering.DiagnosticFactoryToRendererMap
+import org.jetbrains.kotlin.diagnostics.rendering.Renderer
 import org.jetbrains.kotlin.diagnostics.rendering.Renderers
 
 private val DIAGNOSTIC_FACTORY_TO_RENDERER by lazy {
@@ -23,7 +24,7 @@ private val DIAGNOSTIC_FACTORY_TO_RENDERER by lazy {
         put(
             ErrorsNative.MISSING_EXCEPTION_IN_THROWS_ON_SUSPEND,
             "@Throws on suspend declaration must have {0} (or any of its superclasses) listed",
-            Renderers.STRING
+            Renderer { it.shortName().asString() }
         )
         put(
             ErrorsNative.INAPPLICABLE_SHARED_IMMUTABLE_PROPERTY,
