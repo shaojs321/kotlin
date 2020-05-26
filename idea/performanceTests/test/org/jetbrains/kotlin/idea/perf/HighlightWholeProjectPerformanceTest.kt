@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.idea.perf
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.module.impl.ProjectLoadingErrorsHeadlessNotifier
 import com.intellij.testFramework.UsefulTestCase
@@ -13,9 +14,20 @@ import org.jetbrains.kotlin.idea.testFramework.ProjectOpenAction
 import org.jetbrains.kotlin.test.JUnit3RunnerWithInners
 import org.junit.runner.RunWith
 import java.io.File
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit3RunnerWithInners::class)
 class HighlightWholeProjectPerformanceTest : UsefulTestCase() {
+
+    private val THREAD_FACTORY = ThreadFactoryBuilder()
+        .setNameFormat("heap-dumper-thread-%d")
+        .setDaemon(true)
+        .build()
+
+    private val heapDumpThreadService = Executors.newSingleThreadScheduledExecutor(THREAD_FACTORY)
+    private var future: ScheduledFuture<*>? = null
 
     override fun setUp() {
         val allowedErrorDescription = setOf(
@@ -33,6 +45,19 @@ class HighlightWholeProjectPerformanceTest : UsefulTestCase() {
                 }
             }, testRootDisposable
         )
+
+        future =
+            heapDumpThreadService.scheduleAtFixedRate(
+                {
+                    HeapDumper.dumpHeap("HighlightWholeProjectPerformanceTest")
+                }, 2, 60, TimeUnit.MINUTES
+            )
+    }
+
+    override fun tearDown() {
+        super.tearDown()
+
+        future?.let { it.cancel(true) }
     }
 
     fun testHighlightAllKtFilesInProject() {
