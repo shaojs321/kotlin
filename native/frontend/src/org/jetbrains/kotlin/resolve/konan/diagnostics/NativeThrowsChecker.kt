@@ -13,10 +13,15 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.lexer.KtTokens.SUSPEND_KEYWORD
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
+import org.jetbrains.kotlin.resolve.StatementFilter
 import org.jetbrains.kotlin.resolve.annotations.KOTLIN_THROWS_ANNOTATION_FQ_NAME
+import org.jetbrains.kotlin.resolve.calls.callUtil.getCall
+import org.jetbrains.kotlin.resolve.calls.callUtil.hasUnresolvedArguments
 import org.jetbrains.kotlin.resolve.checkers.DeclarationChecker
 import org.jetbrains.kotlin.resolve.checkers.DeclarationCheckerContext
 import org.jetbrains.kotlin.resolve.constants.ArrayValue
@@ -48,8 +53,11 @@ object NativeThrowsChecker : DeclarationChecker {
 
         if (throwsAnnotation == null) return
 
+        val bindingContext = context.trace.bindingContext
+        if (throwsAnnotationEntry?.getCall(bindingContext)?.hasUnresolvedArgumentsRecursive(bindingContext) == true) return
+
         val classes = throwsAnnotation.getVariadicArguments()
-        if (throwsAnnotationEntry?.valueArguments?.isEmpty() ?: classes.isEmpty()) {
+        if (classes.isEmpty()) {
             context.trace.report(ErrorsNative.THROWS_LIST_EMPTY.on(reportLocation))
             return
         }
@@ -134,4 +142,9 @@ object NativeThrowsChecker : DeclarationChecker {
             is KClassValue.Value.LocalClass -> false
         }
 
+}
+
+private fun Call.hasUnresolvedArgumentsRecursive(context: BindingContext): Boolean {
+    return this.hasUnresolvedArguments(context, StatementFilter.NONE) ||
+            valueArguments.any { it.getArgumentExpression()?.getCall(context)?.hasUnresolvedArgumentsRecursive(context) == true }
 }
