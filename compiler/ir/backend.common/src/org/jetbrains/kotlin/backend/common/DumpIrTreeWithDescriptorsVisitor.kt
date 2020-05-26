@@ -283,7 +283,7 @@ class DumpIrTreeWithDescriptorsVisitor(out: Appendable) : IrElementVisitor<Unit,
     private fun dumpTypeArguments(expression: IrMemberAccessExpression) {
         val callable = expression.symbol.owner as IrFunction
         for (typeParameter in callable.typeParameters) {
-            val typeArgument = expression.getTypeArgument(typeParameter) ?: continue
+            val typeArgument = expression.getTypeArgument(typeParameter.index) ?: continue
             val renderedParameter = typeParameter.render()
             val renderedType = typeArgument.render()
             printer.println("$renderedParameter: $renderedType")
