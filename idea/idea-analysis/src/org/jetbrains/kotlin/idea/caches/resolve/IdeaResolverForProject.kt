@@ -34,6 +34,11 @@ import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.platform.toTargetPlatform
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
+import java.util.concurrent.atomic.AtomicLong
+
+object IdeaResolverForProjectCounter {
+    val counter = AtomicLong()
+}
 
 class IdeaResolverForProject(
     debugName: String,

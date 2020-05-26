@@ -117,7 +117,7 @@ internal class ProjectResolutionFacade(
         val modulesToCreateResolversFor = allModuleInfos.filter(moduleFilter)
 
         val resolverForProject = IdeaResolverForProject(
-            resolverDebugName,
+            "#${IdeaResolverForProjectCounter.counter.getAndIncrement()} $resolverDebugName",
             globalContext.withProject(project),
             modulesToCreateResolversFor,
             syntheticFilesByModule,
