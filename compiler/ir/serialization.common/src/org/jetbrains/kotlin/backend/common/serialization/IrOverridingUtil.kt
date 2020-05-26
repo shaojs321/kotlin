@@ -150,7 +150,7 @@ class IrOverridingUtil(val irBuiltIns: IrBuiltIns, val fakeOverrideBuilder: Fake
         val overridden = mutableSetOf<IrOverridableMember>()
         for (fromSupertype in descriptorsFromSuper) {
             val result = isOverridableBy(fromSupertype, fromCurrent/*, current*/).getResult()
-            val isVisibleForOverride = isVisibleForOverride(fromCurrent, fromSupertype)
+            val isVisibleForOverride = isVisibleForOverride(fromCurrent, fromSupertype.original)
             when (result) {
                 OverrideCompatibilityInfo.Result.OVERRIDABLE -> {
                     if (isVisibleForOverride) {
@@ -196,7 +196,7 @@ class IrOverridingUtil(val irBuiltIns: IrBuiltIns, val fakeOverrideBuilder: Fake
         toFilter: Collection<IrOverridableMember>
     ): Collection<IrOverridableMember> {
         return toFilter.filter { member: IrOverridableMember ->
-            !Visibilities.isPrivate(member.visibility) && isVisibleIgnoringReceiver(member, current)
+            !Visibilities.isPrivate(member.visibility) && isVisibleIgnoringReceiver(member.original, current)
         }
     }
 
@@ -313,9 +313,12 @@ class IrOverridingUtil(val irBuiltIns: IrBuiltIns, val fakeOverrideBuilder: Fake
             debug("\t${it.render()}")
         }
 
-        val visibleOverridables = filterVisibleFakeOverrides(current, overridables)
-        val allInvisible = visibleOverridables.isEmpty()
-        val effectiveOverridden = if (allInvisible) overridables else visibleOverridables
+        val effectiveOverridden = filterVisibleFakeOverrides(current, overridables)
+
+        // The descriptor based algorithm goes further building invisible fakes here,
+        // but we don't use invisible fakes in IR
+        if (effectiveOverridden.isEmpty()) return
+
         val modality = determineModalityForFakeOverride(effectiveOverridden, current)
         val visibility = findMemberWithMaxVisibility(effectiveOverridden).visibility
         val mostSpecific = selectMostSpecificMember(effectiveOverridden)

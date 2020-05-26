@@ -28,7 +28,7 @@ private fun findInvisibleMember(
     parentsWithSelf.forEach {
         if (it !is IrDeclarationWithVisibility) return null
         if (it.visibility == Visibilities.INTERNAL &&
-            (what.module != it.module)) {
+            (from.module != it.module)) {
             return it
         }
     }
